@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.hailtrades/mcp",
   "title": "Hailtrades",
-  "description": "Find emergency residential plumbers and electricians in Toronto/GTA: hours, 24/7, call-out fees, licences, contacts.",
+  "description": "Emergency plumbers and electricians in Toronto/GTA: hours, call-out fees, licences, contacts.",
   "repository": {
     "url": "https://github.com/wyllieonchain/hailtrades-mcp",
     "source": "github"
