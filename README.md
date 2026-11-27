@@ -11,6 +11,10 @@ Find **emergency residential plumbers and electricians in Toronto and the GTA** 
 
 This repository holds connection snippets and `server.json` for registries. The server itself is hosted at hailtrades.com; there is nothing to install.
 
+## Listings
+- Official MCP Registry: `com.hailtrades/mcp` ([entry](https://registry.modelcontextprotocol.io/v0/servers?search=com.hailtrades))
+- Glama: [![Hailtrades MCP connector](https://glama.ai/mcp/connectors/com.hailtrades/mcp/badges/score.svg)](https://glama.ai/mcp/connectors/com.hailtrades/mcp)
+
 ## Tools
 
 | Tool | Type | What it does |
