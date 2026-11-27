@@ -6,9 +6,9 @@
   "authorUrl": "https://hailtrades.com",
   "category": "tools",
   "cloudEndpoint": "https://hailtrades.com/mcp",
-  "homepage": "https://github.com/wyllieonchain/hailtrades-mcp",
+  "homepage": "https://github.com/Hailtrades/hailtrades-mcp",
   "description": "Find emergency residential plumbers and electricians in Toronto/GTA: hours, 24/7 flags, call-out fees, licences, contacts. Remote, no auth.",
-  "icon": "https://raw.githubusercontent.com/wyllieonchain/hailtrades-mcp/main/assets/logo-400.png",
+  "icon": "https://raw.githubusercontent.com/Hailtrades/hailtrades-mcp/main/assets/logo-400.png",
   "tags": [
     "plumber",
     "electrician",
