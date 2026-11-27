@@ -1,0 +1,151 @@
+{
+  "identifier": "hailtrades",
+  "name": "Hailtrades",
+  "version": "1.0.0",
+  "author": "Buzz Research Inc.",
+  "authorUrl": "https://hailtrades.com",
+  "category": "tools",
+  "cloudEndpoint": "https://hailtrades.com/mcp",
+  "homepage": "https://github.com/wyllieonchain/hailtrades-mcp",
+  "description": "Find emergency residential plumbers and electricians in Toronto/GTA: hours, 24/7 flags, call-out fees, licences, contacts. Remote, no auth.",
+  "icon": "https://raw.githubusercontent.com/wyllieonchain/hailtrades-mcp/main/assets/logo-400.png",
+  "tags": [
+    "plumber",
+    "electrician",
+    "toronto",
+    "emergency",
+    "local-services",
+    "directory",
+    "open-data"
+  ],
+  "tools": [
+    {
+      "name": "search_providers",
+      "description": "Find residential emergency plumbers or electricians in Toronto and the Greater Toronto Area (urgent, unplanned work such as burst pipes, sewer backups, no power, tripped panels; not renovations). Read-only. Returns up to `limit` providers with services, service areas, hours, 24/7/emergency/weekend availability, call-out and quote fees, preferred contact method and contact details, licence, years in business, reviews and last_verified date. Null/unknown fields mean UNKNOWN, not 'no'. Each result includes ref (a unique HT-XXXX code for that result) and suggested_message (an optional message the user can send; it mentions Hailtrades and the ref).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "trade": {
+            "type": "string",
+            "enum": [
+              "plumber",
+              "electrician"
+            ],
+            "description": "Which trade you need."
+          },
+          "location": {
+            "type": "string",
+            "description": "Area name in the Toronto/GTA, e.g. 'North York', 'Etobicoke', 'Downtown Toronto', 'Mississauga', 'Vaughan'. Provide this or postal_code."
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "Canadian postal code or 3-character FSA, e.g. 'M2N 5W3' or 'M2N'. Provide this or location."
+          },
+          "emergency": {
+            "type": "boolean",
+            "description": "true = only providers that are 24/7 or explicitly offer emergency (unplanned, urgent) service. Use for burst pipes, no power, sewer backup, sparks."
+          },
+          "open_now": {
+            "type": "boolean",
+            "description": "true = only providers confirmed open right now (America/Toronto time) from stored hours, or flagged 24/7. Providers with no hours on file are excluded."
+          },
+          "service": {
+            "type": "string",
+            "description": "Service slug or keyword, e.g. burst_pipe, drain_clearing, sewer_backup, water_heater_repair, power_outage, breaker_repair, panel_upgrade."
+          },
+          "max_callout_fee": {
+            "type": "number",
+            "description": "Maximum call-out fee in CAD. Providers with a known fee above this are excluded; providers with an unknown fee are kept and marked unknown."
+          },
+          "issue": {
+            "type": "string",
+            "description": "Optional short description of the problem (e.g. 'a burst pipe in the basement'). Only used to word suggested_message."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Max results (default 5)."
+          }
+        },
+        "required": [
+          "trade"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_provider",
+      "description": "Get full details for one provider by id (from search_providers): hours, fees, areas, contact details, licences, reviews, last_verified. Read-only. Includes ref (unique HT-XXXX code) and suggested_message (optional message the user can send; mentions Hailtrades and the ref).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Provider id from search_providers (e.g. prv_ab12cd34ef) or the provider's page slug."
+          },
+          "issue": {
+            "type": "string",
+            "description": "Optional short description of the problem, used to word suggested_message."
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "report_contact",
+      "description": "Record the outcome after the user contacts a provider (helps keep availability accurate for others). Only call when the user has contacted the provider. Do not include personal details about the customer.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "description": "The provider id you contacted."
+          },
+          "ref": {
+            "type": "string",
+            "description": "The HT-XXXX ref code from the search/get result for that provider (strongly recommended)."
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "call",
+              "text",
+              "email",
+              "form"
+            ],
+            "description": "How you contacted them."
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "no_answer",
+              "quote_given",
+              "visit_booked",
+              "declined",
+              "other"
+            ],
+            "description": "What happened: no_answer, quote_given, visit_booked, declined (provider declined or unavailable), or other (explain in notes)."
+          },
+          "time": {
+            "type": "string",
+            "description": "ISO 8601 time of the contact attempt (defaults to now if omitted)."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional facts that help other users: actual fee quoted, arrival time, whether they were open/after-hours. No personal details about the customer."
+          }
+        },
+        "required": [
+          "provider_id",
+          "channel",
+          "outcome"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
