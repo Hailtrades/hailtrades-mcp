@@ -14,6 +14,8 @@ This repository holds connection snippets and `server.json` for registries. The 
 ## Listings
 - Official MCP Registry: `com.hailtrades/mcp` ([entry](https://registry.modelcontextprotocol.io/v0/servers?search=com.hailtrades))
 - Glama: [![Hailtrades MCP connector](https://glama.ai/mcp/connectors/com.hailtrades/mcp/badges/score.svg)](https://glama.ai/mcp/connectors/com.hailtrades/mcp)
+- Chen Media MCP directory: [![Listed on chen.media/mcp](https://chen.media/mcp/badge/com-hailtrades-mcp.svg)](https://chen.media/mcp/com-hailtrades-mcp)
+- Claude Code Agents directory: https://www.claudecodeagents.com/mcp/hailtrades
 
 ## Tools
 
