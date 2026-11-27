@@ -1,3 +1,5 @@
+<p align="center"><a href="https://hailtrades.com"><img src="assets/logo-256.png" alt="Hailtrades" width="128" height="128"></a></p>
+
 # Hailtrades MCP server
 
 Find **emergency residential plumbers and electricians in Toronto and the GTA** from any AI agent or MCP client. About 7,000 providers with hours, 24/7 / emergency / weekend flags, call-out and free-quote fees, licence numbers, service areas, preferred contact method and a last-verified date.
