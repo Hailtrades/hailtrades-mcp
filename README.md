@@ -64,6 +64,9 @@ Consumer Muse: ask it to "Build a custom connector for the public MCP server at 
 { "mcpServers": { "hailtrades": { "command": "npx", "args": ["-y", "mcp-remote", "https://hailtrades.com/mcp"] } } }
 ```
 
+## Works with Meta Muse
+Meta Muse has connected to this server through its Custom Connector flow and called `search_providers` successfully. A typical question needs one tool call. To try it, ask Muse: "Build a custom connector for the public MCP server at https://hailtrades.com/mcp (streamable HTTP, no auth)". Hailtrades is an independent project and is not affiliated with or endorsed by Meta.
+
 ## Example calls
 
 MCP (JSON-RPC over HTTP):
@@ -85,6 +88,9 @@ Example prompts:
 
 ## Data and attribution
 Data under CC BY 4.0. Cite as "Hailtrades (https://hailtrades.com)". Provider data comes from public sources with per-field provenance; see https://hailtrades.com/methodology.
+
+## Support
+support@hailtrades.com
 
 ## Operator
 Buzz Research Inc. · founder Malcolm Wylie · https://hailtrades.com
