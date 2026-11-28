@@ -24,11 +24,12 @@ This repository holds connection snippets and `server.json` for registries. The 
 
 | Tool | Type | What it does |
 |---|---|---|
-| `search_providers` | read-only | Search by `trade` (plumber/electrician), `location` or `postal_code`, `emergency`, `open_now`, `service`, `max_callout_fee`, `limit`. |
-| `get_provider` | read-only | Full details for one provider id from search. |
+| `find_help` | read-only | **Start here.** One call from a plain request (`need`: "my toilet is overflowing", `location`: "Mimico" / "Yonge and Eglinton" / "M6P 2T1", optional `when`: "tonight", "Sunday") to the 3 best providers: call-now phone, open/closed in Toronto time with closing time, a one-line reason, only the fees that are published, licence and third-party rating with source/date, `ref` + `suggested_message`, plus a ready-to-say `summary`. Understands synonyms, French, typos, intersections, lat/lng and postal codes in any spacing. Unsupported trades (HVAC, roofing) and areas outside the GTA return an honest `status` with guidance. |
+| `search_providers` | read-only | Filterable search: `trade` (plumber/electrician), `location` or `postal_code`, `emergency`, `open_now`, `when`, `service`, `max_callout_fee`, `sort` (cheapest by known fee), `limit`. Same decision fields on every result plus the full record. |
+| `get_provider` | read-only | Full details (weekly hours, all channels, sources) for one provider id from a search. |
 | `report_contact` | write (optional) | Record the outcome of a user's contact attempt so availability stays accurate. Only when the user actually contacted the provider. |
 
-Null/unknown fields mean *unknown*, not "no".
+Null/unknown fields mean *unknown*, not "no". Results carry readable text in `content` and the same data in `structuredContent` (with `outputSchema`).
 
 ## Connect
 
@@ -70,7 +71,7 @@ Consumer Muse: ask it to "Build a custom connector for the public MCP server at 
 ```
 
 ## Works with Meta Muse
-Meta Muse has connected to this server through its Custom Connector flow and called `search_providers` successfully. A typical question needs one tool call. To try it, ask Muse: "Build a custom connector for the public MCP server at https://hailtrades.com/mcp (streamable HTTP, no auth)". Hailtrades is an independent project and is not affiliated with or endorsed by Meta.
+Meta Muse has connected to this server through its Custom Connector flow and called `search_providers` successfully (`find_help` has since been added). A typical question needs one `find_help` call. To try it, ask Muse: "Build a custom connector for the public MCP server at https://hailtrades.com/mcp (streamable HTTP, no auth)". Hailtrades is an independent project and is not affiliated with or endorsed by Meta.
 
 ## Example calls
 
@@ -78,11 +79,12 @@ MCP (JSON-RPC over HTTP):
 ```bash
 curl -s https://hailtrades.com/mcp \
   -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_providers","arguments":{"trade":"plumber","location":"North York","emergency":true,"limit":3}}}'
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_help","arguments":{"need":"my toilet is overflowing","location":"Mimico","when":"tonight"}}}'
 ```
 
 REST:
 ```bash
+curl 'https://hailtrades.com/api/v1/help?need=no%20power%20in%20half%20the%20house&location=Scarborough'
 curl 'https://hailtrades.com/api/v1/providers/search?trade=electrician&postal_code=M5V&emergency=true&limit=3'
 ```
 

@@ -16,4 +16,4 @@ Add to your MCP settings (e.g. `cline_mcp_settings.json`):
 }
 ```
 
-Tools: `search_providers` (trade, location|postal_code, emergency, open_now, service, max_callout_fee, limit), `get_provider` (id), `report_contact` (optional outcome report). Try: search_providers {"trade":"plumber","location":"North York","emergency":true}.
+Tools: `find_help` (need, location, when: start here), `search_providers` (trade, location|postal_code, emergency, open_now, service, max_callout_fee, limit), `get_provider` (id), `report_contact` (optional outcome report). Try: find_help {"need":"burst pipe in the basement","location":"North York"}.

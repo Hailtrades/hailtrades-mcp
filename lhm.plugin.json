@@ -20,8 +20,80 @@
   ],
   "tools": [
     {
+      "name": "find_help",
+      "description": "Find who to call for an urgent plumbing or electrical problem in Toronto and the GTA, from the user's own words. Pass `need` (e.g. 'no power in half the house') and `location` (neighbourhood, city, intersection or postal code); optionally `when` ('tonight', 'Sunday'). Chooses plumber vs electrician, tolerates typos/synonyms/French, and returns the 3 best providers, each with a call-now phone, open/closed in Toronto time with closing time, a one-line reason, known fees only, licence and rating with source/date, an HT-XXXX ref and a suggested_message, plus a ready-to-say `summary`. One call is normally enough. Read-only. If the trade (HVAC, roofing...) or area (Hamilton, Ottawa...) is not covered, `status` says so with guidance instead of results. Missing or null fields are UNKNOWN, not 'no'. Never covers renovations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "need": {
+            "type": "string",
+            "description": "What is wrong, in the user's own words, any language: 'my toilet is overflowing', 'no power in half the house', 'water heater leaking', 'sparky for a dead outlet'. Used to choose plumber vs electrician, the service and the urgency.",
+            "examples": [
+              "my toilet is overflowing",
+              "no power in half the house"
+            ]
+          },
+          "location": {
+            "type": "string",
+            "description": "Where the job is: neighbourhood, city, intersection ('Yonge and Eglinton'), postal code or its first 3 characters ('M6P'), or 'lat,lng'. Misspellings are tolerated. Toronto and the GTA only. If the user has not said where, ask them; the server cannot see their location.",
+            "examples": [
+              "Mimico",
+              "M6P 2T1",
+              "Danforth and Pape"
+            ]
+          },
+          "when": {
+            "type": "string",
+            "description": "When help is needed, Toronto time: 'now' (default), 'tonight', 'tomorrow morning', 'Sunday', 'Saturday 3pm' or an ISO 8601 time. Used to report who is open then.",
+            "examples": [
+              "now",
+              "tonight",
+              "Sunday"
+            ]
+          },
+          "trade": {
+            "type": "string",
+            "description": "Optional: plumber or electrician. Normally inferred from `need`; synonyms like 'plumbing', 'sparky' are understood.",
+            "examples": [
+              "plumber",
+              "electrician"
+            ]
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "Optional: Canadian postal code or FSA if the user gave one, any spacing/case ('m6p2t1')."
+          },
+          "lat": {
+            "type": "number",
+            "description": "Optional latitude if the user shared coordinates."
+          },
+          "lng": {
+            "type": "number",
+            "description": "Optional longitude if the user shared coordinates."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "How many providers to return (default 3, max 10)."
+          }
+        },
+        "required": [
+          "need"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Find emergency plumber/electrician",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "search_providers",
-      "description": "Find residential emergency plumbers or electricians in Toronto and the Greater Toronto Area (urgent, unplanned work such as burst pipes, sewer backups, no power, tripped panels; not renovations). Read-only. Returns up to `limit` providers with services, service areas, hours, 24/7/emergency/weekend availability, call-out and quote fees, preferred contact method and contact details, licence, years in business, reviews and last_verified date. Null/unknown fields mean UNKNOWN, not 'no'. Each result includes ref (a unique HT-XXXX code for that result) and suggested_message (an optional message the user can send; it mentions Hailtrades and the ref).",
+      "description": "Filterable search for residential emergency plumbers or electricians in Toronto and the GTA (urgent work such as burst pipes, sewer backups, no power, tripped panels; not renovations). Needs trade plus location or postal_code; supports emergency, open_now, when, service, max_callout_fee and sort (cheapest by known fee). Returns up to `limit` providers (default 5), each with phone, open_now/open_status (Toronto time), hours_today, 24/7/emergency/weekend flags, call-out and quote fees where published, licence, third-party review sources, last_verified, a one-line `why`, ref and suggested_message. Read-only. Results already include everything needed to answer; call get_provider only for full weekly hours or all contact channels. Absent/null = UNKNOWN. If total_matches is 0 or status is not ok, read `guidance` and retry with a broader location or without open_now/service/max_callout_fee. For a plain-language request use find_help.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -35,11 +107,20 @@
           },
           "location": {
             "type": "string",
-            "description": "Area name in the Toronto/GTA, e.g. 'North York', 'Etobicoke', 'Downtown Toronto', 'Mississauga', 'Vaughan'. Provide this or postal_code."
+            "description": "Where the job is: a Toronto/GTA city, district or neighbourhood ('North York', 'Mimico', 'Liberty Village', 'Mississauga'), an intersection ('Yonge and Eglinton'), 'lat,lng', or a postal code. Misspellings are tolerated. Provide this or postal_code. Toronto and the GTA only.",
+            "examples": [
+              "North York",
+              "Mimico",
+              "Yonge and Eglinton"
+            ]
           },
           "postal_code": {
             "type": "string",
-            "description": "Canadian postal code or 3-character FSA, e.g. 'M2N 5W3' or 'M2N'. Provide this or location."
+            "description": "Canadian postal code or 3-character FSA, any case/spacing: 'M2N 5W3', 'm6p', 'M6P2T1'. Provide this or location.",
+            "examples": [
+              "M2N 5W3",
+              "M6P"
+            ]
           },
           "emergency": {
             "type": "boolean",
@@ -47,11 +128,23 @@
           },
           "open_now": {
             "type": "boolean",
-            "description": "true = only providers confirmed open right now (America/Toronto time) from stored hours, or flagged 24/7. Providers with no hours on file are excluded."
+            "description": "true = only providers confirmed open at the requested time (default now, America/Toronto) from stored hours, or flagged 24/7. Providers with no hours on file are excluded; leave unset to see them marked 'hours not on file'."
+          },
+          "when": {
+            "type": "string",
+            "description": "Optional time to evaluate open_now and open_status at, Toronto time: 'tonight', 'Sunday', 'tomorrow 9am', ISO 8601. Default now.",
+            "examples": [
+              "tonight",
+              "Sunday"
+            ]
           },
           "service": {
             "type": "string",
-            "description": "Service slug or keyword, e.g. burst_pipe, drain_clearing, sewer_backup, water_heater_repair, power_outage, breaker_repair, panel_upgrade."
+            "description": "Service slug or plain words: burst_pipe, drain_clearing, sewer_backup, water_heater_repair, sump_pump, clogged_toilet, power_outage, breaker_repair, panel_upgrade, ev_charger... ('burst pipe' also works).",
+            "examples": [
+              "burst_pipe",
+              "breaker_repair"
+            ]
           },
           "max_callout_fee": {
             "type": "number",
@@ -59,30 +152,53 @@
           },
           "issue": {
             "type": "string",
-            "description": "Optional short description of the problem (e.g. 'a burst pipe in the basement'). Only used to word suggested_message."
+            "description": "Optional short description of the problem (e.g. 'a burst pipe in the basement'). Used to word suggested_message and to detect urgency/safety."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "best_match",
+              "lowest_callout_fee",
+              "lowest_after_hours_fee"
+            ],
+            "description": "best_match (default): 24/7 first, then emergency-capable (within a tier, providers located in the requested area come before ones that only list it as a service area), then providers with fees/hours/verification on file, then rating. lowest_callout_fee / lowest_after_hours_fee: providers with a KNOWN fee, cheapest first, then unknown-fee providers. Most providers do not publish a fee; say how many results had one."
           },
           "limit": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 20,
-            "description": "Max results (default 5)."
+            "maximum": 10,
+            "description": "Max results (default 5, max 10)."
           }
         },
         "required": [
           "trade"
         ],
         "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Search emergency providers",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
       }
     },
     {
       "name": "get_provider",
-      "description": "Get full details for one provider by id (from search_providers): hours, fees, areas, contact details, licences, reviews, last_verified. Read-only. Includes ref (unique HT-XXXX code) and suggested_message (optional message the user can send; mentions Hailtrades and the ref).",
+      "description": "Full details for one provider id from find_help/search_providers: full weekly hours, fees, all service areas, all contact channels, licences, review sources, last_verified, plus the same why/open_status lines. Read-only. Not needed to answer a normal search. Returns the same ref as the search (pass ref to keep it unchanged) and suggested_message.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Provider id from search_providers (e.g. prv_ab12cd34ef) or the provider's page slug."
+            "description": "Provider id from find_help/search_providers (e.g. prv_ab12cd34ef) or the provider's page slug.",
+            "examples": [
+              "prv_ab12cd34ef"
+            ]
+          },
+          "ref": {
+            "type": "string",
+            "description": "Optional: the HT-XXXX ref from the search result for this provider, returned unchanged so the user sees one ref per provider. Without it the most recent ref issued to you for this provider (24h) is reused."
           },
           "issue": {
             "type": "string",
@@ -93,11 +209,18 @@
           "id"
         ],
         "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get provider details",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
       }
     },
     {
       "name": "report_contact",
-      "description": "Record the outcome after the user contacts a provider (helps keep availability accurate for others). Only call when the user has contacted the provider. Do not include personal details about the customer.",
+      "description": "WRITE (stores one record; not destructive). Records the outcome of a contact attempt the user actually made, so availability data stays accurate. Only call when the user has contacted the provider and agrees to share the outcome. Never include personal details about the customer.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -145,6 +268,13 @@
           "outcome"
         ],
         "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Report contact outcome",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
       }
     }
   ]
